@@ -1,114 +1,36 @@
-Apigility Skeleton Application
-==============================
+# ChessBot
+The bot made for greymeter unicommerce hackathon.
 
-Requirements
-------------
+## Rules of the Game
+ 1. There is a board game played between two players. The board has nXn equal squares, where 8 <= n <= 15  (similar to a chess board).
+ 2. Only two kings will be placed on the board at the starting of the game (one at 1,1 and second at n,n position).
+ 3. The kings can move one square in any direction - up, down, to the sides, and diagonally, just like chess.
+ 4. Each square can be visited at-most once by either of the kings.
+ 5. The king who gets killed, or is out of moves loses the game.
 
-Please see the [composer.json](composer.json) file.
+## What we had to do
+ 1. You need to write a bot, which can play the game on your behalf. And expose this bot as a webservice.
+ 2. Your webservice should run on port 8080 and expose three APIs:
 
-Installation
-------------
+|URL   | Type | Parameter | Sample Response | Purpose |
+|------|------|-----------|-----------------|-----------|
+|/ping |  GET | --        | {ok: true}      | To let us know that your bot server is alive |
+|/start|  GET | y,o,g     | {ok: true}      | For you to initialize the round. Here **y** would indicate position of your king (eg: 1\|1), **o** indicates position of opponent’s king (eg: n\|n), and **g** indicates size of the grid. |
+|/play |  GET | m         | {m:"1\|2"}      | **m** : Move made by your opponent. Your response would convey your next move.|
 
-### Via release tarball
+*Note: By convention all positions are represented as x\|y where x and y are respective coordinates on the board. Bottom left board is 1\|1.*
 
-Grab the latest release via the [Apigility website](http://apigility.org/)
-and/or the [releases page](https://github.com/zfcampus/zf-apigility-skeleton/releases).
-At the time of this writing, that URI is:
-
-- https://github.com/zfcampus/zf-apigility-skeleton/releases/download/0.9.1/zf-apigility-skeleton-0.9.1.tgz
-
-Untar it:
-
-```bash
-tar xzf zf-apigility-skeleton-0.9.1.tgz
-```
-
-### Via Composer (create-project)
-
-You can use the `create-project` command from [Composer](http://getcomposer.org/)
-to create the project in one go (you need to install [composer.phar](https://getcomposer.org/doc/00-intro.md#downloading-the-composer-executable)):
-
-```bash
-curl -s https://getcomposer.org/installer | php --
-php composer.phar create-project -sdev zfcampus/zf-apigility-skeleton path/to/install
-```
-
-### Via Git (clone)
-
-First, clone the repository:
-
-```bash
-git clone https://github.com/zfcampus/zf-apigility-skeleton.git # optionally, specify the directory in which to clone
-cd path/to/install
-```
-
-At this point, you need to use [Composer](https://getcomposer.org/) to install
-dependencies. Assuming you already have Composer:
-
-```bash
-composer.phar install
-```
-
-### All methods
-
-Once you have the basic installation, you need to put it in development mode:
-
-```bash
-cd path/to/install
-php public/index.php development enable # put the skeleton in development mode
-```
-
-Now, fire it up! Do one of the following:
-
-- Create a vhost in your web server that points the DocumentRoot to the
-  `public/` directory of the project
-- Fire up the built-in web server in PHP (5.4.8+) (**note**: do not use this for
-  production!)
-
-In the latter case, do the following:
-
-```bash
-cd path/to/install
-php -S 0.0.0.0:8080 -t public public/index.php
-```
-
-You can then visit the site at http://localhost:8080/ - which will bring up a
-welcome page and the ability to visit the dashboard in order to create and
-inspect your APIs.
-
-### NOTE ABOUT USING THE PHP BUILT-IN WEB SERVER
-
-PHP's built-in web server did not start supporting the `PATCH` HTTP method until
-5.4.8. Since the admin API makes use of this HTTP method, you must use a version
-&gt;= 5.4.8 when using the built-in web server.
-
-### NOTE ABOUT USING APACHE
-
-Apache forbids the character sequences `%2F` and `%5C` in URI paths. However, the Apigility Admin
-API uses these characters for a number of service endpoints. As such, if you wish to use the
-Admin UI and/or Admin API with Apache, you will need to configure your Apache vhost/project to
-allow encoded slashes:
-
-```apache
-AllowEncodedSlashes On
-```
-
-This change will need to be made in your server's vhost file (it cannot be added to `.htaccess`).
-
-### NOTE ABOUT OPCACHE
-
-**Disable all opcode caches when running the admin!**
-
-The admin cannot and will not run correctly when an opcode cache, such as APC or
-OpCache, is enabled. Apigility does not use a database to store configuration;
-instead, it uses PHP configuration files. Opcode caches will cache these files
-on first load, leading to inconsistencies as you write to them, and will
-typically lead to a state where the admin API and code become unusable.
-
-The admin is a **development** tool, and intended for use a development
-environment. As such, you should likely disable opcode caching, regardless.
-
-When you are ready to deploy your API to **production**, however, you can
-disable development mode, thus disabling the admin interface, and safely run an
-opcode cache again. Doing so is recommended for production due to the tremendous
-performance benefits opcode caches provide.
+####The Rules
+1. At the beginning, all players would be given a rating of 8.
+2. After a game, half of the rating points of losing player would be transferred to the winning player.
+3. For first game between any two players, each of the player will be awarded one additional rating point.
+4. A game will consist of two rounds with each player getting the first move in one round. To win a game, you need to win both the rounds. 
+5. You will see the leaderboard on http://hackathon.unicommerce.com. Here you’ll be able to challenge any of the available players. A player is available for challenge if his bot server is alive and he has marked himself as “Available for Challenge”. You can mark yourself as “Available for Challenge” using the button provided on the panel.
+6. At the end of each game, you will be marked as “Not Available For Challenge”. You’ll need to make yourself available for challenge to play next game. 
+7. There can be at most 5 games between any two players.
+8. You can see the reply of any of the games in the “Games Arena” tab.
+9. As soon as one makes a move to an already visited square (by any of the king), they are declared a loser for the game.
+10. If your API takes more than 3 secs to respond, or gives an invalid response, you’ll lose the game.
+11. You will be disqualified if your rating points go down to 0 (after rounding off to 2 decimal places).
+12. Top few players after above rounds will then fight against each other in knock-out tournament.
+13. You are allowed to modify/improvise your algorithm at any time during the course of the event.
